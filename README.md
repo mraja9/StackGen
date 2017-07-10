@@ -2,12 +2,12 @@
 
 ## Synopsis
 
-StackGen is a python package that performs stacked generalization. Check out the seminal paper 'Stacked Generalization' by David Wolpert (Ref: Wolpert, David H. "Stacked generalization." Neural networks 5.2 (1992): 241-259) and the accompanying report.pdf in the repo for more information.
+StackGen is a python package that performs stacked generalization which is the process of combining various machine learning models using a meta-learner or a stacking model in order to reduce generalization error. The idea is based on the seminal paper 'Stacked Generalization' by David Wolpert (Ref: Wolpert, David H. "Stacked generalization." Neural networks 5.2 (1992): 241-259). Check out the report.pdf file in this repo for more information.
 
 ## Motivation
 
 <p align="justify"> 
-Stacked generalization or 'stacking' has become a staple technique in Kaggle competitions (and other data science competitions as well) among top competitors. This technique is used to  combine multiple machine learning models using a meta-learner and can greatly improve generalization error. However, the implementation of stacked generalization is rather tedious and confusing for beginners and pros alike. The StackGen package aims to hide the complexity behind this technique and provide an easy, familiar api for users to perform stacking. Please refer to report.pdf in this repo for more information. 
+Stacked generalization or 'stacking' has become a staple technique in Kaggle competitions (and other data science competitions) among top competitors. This technique is used to  combine multiple machine learning models using a meta-learner and can greatly improve generalization error. However, the implementation of stacked generalization is rather tedious and confusing for beginners and pros alike. The StackGen package aims to hide the complexity behind this technique and provides an easy, familiar api for users to perform stacking.
 </p>
 
 ## Requirements
@@ -74,7 +74,7 @@ Clone the project to your local machine and import the StackGen package in your 
 
 ## Tests
 
-Run tests_stackgen.py to test all methods of StackGen class for both classification and Regression cases.
+Run tests_stackgen.py to test all methods of StackGen class for both classification and regression cases.
 
 ## License
 
