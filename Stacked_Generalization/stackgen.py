@@ -74,18 +74,20 @@ class StackGen(object):
     
     Attributes
     ----------
-    results_ : list
-        Results from the stacking process are stored as list of dictionaries. Contents of the results_ list 
+    _results : list
+        Results from the stacking process are stored as list of dictionaries. Contents of the _results list 
         depend on the value of 'save_results' parameter.
-        ---Value of save_results: Contents of results_ list---
+        ---Value of save_results: Contents of _results list---
         0: Stacker's out of sample predictions
         1: Stacker's out of sample predictions 
         2: Stacker's out of sample predictions, blended train and out of sample predictions of 
            base models
         3: Stacker's out of sample predictions, blended train and out of sample predictions of 
            base models, fitted base and stacker models across all CV folds
-        
-        
+
+    _complete_run: boolean
+        Flag to indicate if StackGen object has been fit and predictions have been made through the stacking processs.    
+
     Examples
     --------
     ### Regression example ###
@@ -149,7 +151,8 @@ class StackGen(object):
         self.random_state = kf_random_state
         self.save_results = save_results
         self.stack_with_orig = stack_with_orig
-        self.results_ = []
+        self._results = []
+        self._complete_run = False
         
         #This parameter indicates the number of unique labels or classes. It will remain 1 for regression.
         self.n_classes = 1
@@ -200,7 +203,24 @@ class StackGen(object):
         else:
             self.kf = KFold(n_splits=self.n_folds, shuffle=True, random_state=self.random_state)
             
-            
+    
+    @property
+    def results(self):
+        """Getter to retrieve results from the StackGen object.
+        """
+        if self._complete_run:
+            print ("Retrieving StackGen results.")
+            return self._results
+        else:
+            print ("No results to return!")
+
+    @results.setter
+    def results(self, value):
+        """Constraint preventing results from being set by user.
+        """
+        raise AttributeError("Cannot set value for results.")
+
+
     def get_predictions(self, model, data):
         """Calculates and returns fitted model's predictions on supplied data.
         
@@ -309,22 +329,23 @@ class StackGen(object):
         stacker_train_predictions, stacker_oos_predictions = self.fit_stacker(dataset_blend_train, 
                                                             labels, dataset_blend_oos, oos_labels)
         
-        #Append items to results_ list based on 'save_results' and/or save to disk
-        self.results_.append({(type(self.stacker).__name__ + "_stacker_oos_predictions"):stacker_oos_predictions})
+        #Append items to _results list based on 'save_results' and/or save to disk
+        self._results.append({(type(self.stacker).__name__ + "_stacker_oos_predictions"):stacker_oos_predictions})
         base_models = ""
         for base_model in self.base_models:
             base_models = base_models + type(base_model).__name__ + "_"
             
         if self.save_results in [StackGen.save_results_dict["save_oos_blends"], StackGen.save_results_dict["save_all"]]:
-            self.results_.append({(base_models + "dataset_blend_train"):np.hstack(dataset_blend_train)})
-            self.results_.append({(base_models + "dataset_blend_oos"):np.hstack(dataset_blend_oos)})
+            self._results.append({(base_models + "dataset_blend_train"):np.hstack(dataset_blend_train)})
+            self._results.append({(base_models + "dataset_blend_oos"):np.hstack(dataset_blend_oos)})
             
         if self.save_results != StackGen.save_results_dict["not_saved"]:
-            _ = joblib.dump(self.results_, ("StackGenResults_" + base_models + "stk-" + type(self.stacker).__name__ 
+            _ = joblib.dump(self._results, ("StackGenResults_" + base_models + "stk-" + type(self.stacker).__name__ 
                                             + "_" + time.strftime("%Y-%m-%d_%H-%M") + "_savetype" + str(self.save_results)  
                                             + ".pkl"), compress = 3)
             print ("Results have been saved to disk!")
 
+        self._complete_run = True
         return stacker_oos_predictions
     
 
@@ -492,8 +513,8 @@ class StackGen(object):
             print ("OOS error ---> ", self.get_error(oos_labels, oos_predictions))
         print ("")
         
-        #Append model dictionary to results_ list
+        #Append model dictionary to _results list
         if self.save_results == StackGen.save_results_dict["save_all"]:
-            self.results_.append(model_cv_dict)
+            self._results.append(model_cv_dict)
             
         return (train_predictions, oos_predictions)        
